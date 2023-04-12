@@ -1,0 +1,18 @@
+{
+    "name": "SimpleFastFluid.Examples",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:50062d9838aa6f245b408563bbba59f6",
+        "GUID:620c73e372715904fa3ec37292723fa4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
