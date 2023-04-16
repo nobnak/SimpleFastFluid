@@ -21,6 +21,7 @@ namespace SimpleAndFastFluids.Examples {
 		#region properties
 		public Texture Force { get; set; }
 		public Texture Source { get; set; }
+		public Texture CurrentOutput { get; protected set; }
 		#endregion
 
 		#region Unity
@@ -84,23 +85,22 @@ namespace SimpleAndFastFluids.Examples {
 			Notify();
 		}
 		void Notify() {
-			Texture target = null;
 			switch (tuner.debug.outputMode) {
 			case OutputModeEnum.Fluid:
-                target = fluid0;
+                CurrentOutput = fluid0;
 				break;
 			case OutputModeEnum.Force:
-                target = Force;
+                CurrentOutput = Force;
 				break;
 			case OutputModeEnum.AdvectionSource:
-                target = Source;
+                CurrentOutput = Source;
 				break;
 			case OutputModeEnum.AdvectedImage:
 			default:
-				target = image0;
+				CurrentOutput = image0;
 				break;
 			}
-			events.OnUpdateAdvectedImageTexture?.Invoke(target);
+			events.OnUpdateAdvectedImageTexture?.Invoke(CurrentOutput);
 		}
 		#endregion
 

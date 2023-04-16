@@ -15,12 +15,17 @@ public class CameraCaptureTexture : MonoBehaviour {
     protected CameraWrapper captureCam;
     protected RenderTextureWrapper captureTex;
 
+    #region properties
+    public Texture CurrentOutput { get => captureTex; }
+    #endregion
+
     #region unity
     private void OnEnable() {
         captureCam = new CameraWrapper(c => {
             if (c == null) {
                 var go = new GameObject(name);
                 go.hideFlags = HideFlags.DontSave;
+                go.transform.SetParent(transform);
                 c = go.AddComponent<Camera>();
                 CameraCaptureBridge.AddCaptureAction(c, OnCameraCaptureAction);
             }
@@ -35,11 +40,6 @@ public class CameraCaptureTexture : MonoBehaviour {
             events.OnCreate?.Invoke(result);
             return result;
         });
-
-        captureTex.Changed += v => {
-            if (captureCam != null)
-                captureCam.Value.targetTexture = v;
-        };
     }
     private void OnDisable() {
         if (captureCam != null) {
@@ -55,10 +55,11 @@ public class CameraCaptureTexture : MonoBehaviour {
     private void Update() {
         if (captureCam != null) {
             var source = links.source != null ? links.source : Camera.main;
+            captureTex.Size = source.Size();
             captureCam.Value.CopyFrom(source);
             captureCam.Value.depth += 1;
             captureCam.Value.cullingMask = preset.cullingMask;
-            captureTex.Size = source.Size();
+            captureCam.Value.targetTexture = captureTex;
         }
     }
     #endregion
