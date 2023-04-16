@@ -23,15 +23,11 @@
 				float4 vertex : SV_POSITION;
 			};
 
-			sampler2D _MainTex;
-			float4 _MainTex_TexelSize;
 			float4 _DirAndCenter;
 			float _InvRadius;
 
 			v2f vert (appdata v) {
                 float2 uvb = v.uv;
-                if (_MainTex_TexelSize.y < 0)
-                    uvb.y = 1 - uvb.y;
 
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);

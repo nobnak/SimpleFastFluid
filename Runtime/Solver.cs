@@ -44,7 +44,7 @@ namespace SimpleAndFastFluids {
 		public void Clear(RenderTexture fluid0) {
 			Graphics.Blit(null, fluid0, mat, (int)Pass.Init);
 		}
-        public float Solve(RenderTexture fluid0, RenderTexture fluid1, Texture force, Tuner tuner, float dt) {
+        public float Solve(Texture fluid0, RenderTexture fluid1, Texture force, Tuner tuner, float dt) {
 			var kvis = tuner.vis;
 			var s = tuner.k / dt;
 
@@ -60,12 +60,12 @@ namespace SimpleAndFastFluids {
 			}
 			return dt;
         }
-		public void Advect(RenderTexture main0, RenderTexture main1, Texture fluid, float dt) {
+		public void Advect(Texture main0, RenderTexture main1, Texture fluid, float dt) {
 			mat.SetTexture(P_Tex0, fluid);
 			mat.SetFloat(P_Dt, dt);
 			Graphics.Blit(main0, main1, mat, (int)Pass.Advect);
 		}
-		public void Lerp(RenderTexture src, RenderTexture dst, RenderTexture emit_tex, 
+		public void Lerp(Texture src, RenderTexture dst, Texture emit_tex, 
 			float emission = 0f, float dissipation = 0f) {
 			mat.SetTexture(P_Tex0, emit_tex);
 			mat.SetFloat(P_Dissipation, dissipation);

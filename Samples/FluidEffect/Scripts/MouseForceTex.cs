@@ -6,37 +6,32 @@ using Gist2.Extensions.SizeExt;
 
 namespace SimpleAndFastFluids.Examples {
 
-    public class ForceFieldTouch : MonoBehaviour {
-        public const string PROP_DIR_AND_CENTER = "_DirAndCenter";
-        public const string PROP_INV_RADIUS = "_InvRadius";
+    public class MouseForceTex : MonoBehaviour {
 
-		[System.Serializable]
-		public class Events {
-			public TextureEvent OnCreate;
-
-			[System.Serializable]
-			public class TextureEvent : UnityEvent<Texture> { }
-		}
-
+        public Links links = new Links();
 		public Events events = new Events();
-        public Material forceFieldMat;
-        public float forceRadius = 0.05f;
+        public Tuner tuner = new Tuner();
 
-		Vector3 _mousePos;
-        RenderTextureWrapper force;
+        ForceField forceField;
+        Vector3 _mousePos;
+        RenderTextureWrapper forceTex;
 
 		#region unity
 		private void OnEnable() {
+            forceField = new ForceField();
+
 			var c = Camera.main;
-			force = new RenderTextureWrapper(size => {
+			forceTex = new RenderTextureWrapper(size => {
 				var tex = new RenderTexture(size.x, size.y, 0, RenderTextureFormat.RGFloat);
 				tex.hideFlags = HideFlags.DontSave;
 				tex.wrapMode = TextureWrapMode.Clamp;
 				tex.filterMode = FilterMode.Bilinear;
 				return tex;
 			});
-			force.Changed += v => {
+			forceTex.Changed += v => {
 				events.OnCreate?.Invoke(v);
+                if (links.fluidEffect != null)
+                    links.fluidEffect.Force = v;
 			};
 
 			UpdateMousePos(Input.mousePosition);
@@ -45,10 +40,13 @@ namespace SimpleAndFastFluids.Examples {
             UpdateForceField();
         }
 		private void OnDisable() {
-			if (force != null) {
-				events.OnCreate?.Invoke(null);
-				force.Dispose();
-				force = null;
+            if (forceField != null) {
+                forceField.Dispose();
+                forceField = null;
+            }
+			if (forceTex != null) {
+				forceTex.Dispose();
+				forceTex = null;
 			}          
         }
 		#endregion
@@ -66,19 +64,35 @@ namespace SimpleAndFastFluids.Examples {
             }
 
 			var c = Camera.main;
-			force.Size = c.Size();
+			forceTex.Size = c.Size();
 
-            forceFieldMat.SetVector(PROP_DIR_AND_CENTER, 
-                new Vector4(forceVector.x, forceVector.y, uv.x, uv.y));
-            forceFieldMat.SetFloat(PROP_INV_RADIUS, 1f / forceRadius);
-            Graphics.Blit(null, force, forceFieldMat);
+            forceField.Render(forceTex, uv, forceVector, tuner.forceRadius);
         }
         Vector3 UpdateMousePos (Vector3 mousePos) {
             var dx = mousePos - _mousePos;
             _mousePos = mousePos;
             return dx;
         }
-		#endregion
-	}
+        #endregion
+
+        #region declarations
+
+        [System.Serializable]
+        public class Links {
+            public FluidEffect fluidEffect;
+        }
+        [System.Serializable]
+        public class Events {
+            public TextureEvent OnCreate;
+
+            [System.Serializable]
+            public class TextureEvent : UnityEvent<Texture> { }
+        }
+        [System.Serializable]
+        public class Tuner {
+            public float forceRadius = 0.05f;
+        }
+        #endregion
+    }
 
 }
