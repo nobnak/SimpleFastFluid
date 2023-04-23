@@ -14,7 +14,7 @@ namespace SimpleAndFastFluids {
 
 		public const string PATH = "Solver";
 
-		public static readonly int P_Tex0 = Shader.PropertyToID("_Tex0");
+        public static readonly int P_Tex0 = Shader.PropertyToID("_Tex0");
 
         public static readonly int P_Dt = Shader.PropertyToID("_Dt");
         public static readonly int P_KVis = Shader.PropertyToID("_KVis");
@@ -44,12 +44,14 @@ namespace SimpleAndFastFluids {
 		public void Clear(RenderTexture fluid0) {
 			Graphics.Blit(null, fluid0, mat, (int)Pass.Init);
 		}
-        public float Solve(Texture fluid0, RenderTexture fluid1, Texture force, Tuner tuner, float dt) {
+        public bool Solve(Texture fluid0, RenderTexture fluid1, Texture force, Tuner tuner, ref float dt) {
 			var kvis = tuner.vis;
 			var s = tuner.k / dt;
+			var next = false;
 
 			if (dt >= tuner.timeStep) {
 				dt -= tuner.timeStep;
+				next = true;
 
 				mat.SetTexture(P_Tex0, force);
 				mat.SetFloat(P_ForcePower, tuner.forcePower);
@@ -58,7 +60,7 @@ namespace SimpleAndFastFluids {
 				mat.SetFloat(P_S, s);
 				Graphics.Blit(fluid0, fluid1, mat, (int)Pass.Fluid);
 			}
-			return dt;
+			return next;
         }
 		public void Advect(Texture main0, RenderTexture main1, Texture fluid, float dt) {
 			mat.SetTexture(P_Tex0, fluid);

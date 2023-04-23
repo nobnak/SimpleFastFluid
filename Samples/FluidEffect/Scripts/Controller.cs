@@ -40,6 +40,11 @@ public class Controller : MonoBehaviour {
                 Graphics.DrawTexture(rect, tex);
         }
     }
+    private void Update() {
+        if (preset.cameraCapture.CurrentOutput != null) {
+            preset.fluidEffect.SetSize(preset.cameraCapture.CurrentOutput.Size());
+        }
+    }
     #endregion
 
     #region declarations

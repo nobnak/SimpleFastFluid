@@ -74,8 +74,10 @@ namespace SimpleAndFastFluids.Examples {
 
         void Update() {
 			var dt = Time.deltaTime;
+			var size = tuner.perf.simulationSize;
 
-			if (Source == null) return;
+			if (size.x < 4 || size.y < 4
+				|| tuner.perf.simulationSpeed <= 0f) return;
 
 			Prepare();
 			Solve(dt);
@@ -111,13 +113,18 @@ namespace SimpleAndFastFluids.Examples {
 			image0?.Release();
 			image1?.Release();
 		}
+		public void SetSize(int2 simulationSize) {
+			if (math.any(tuner.perf.simulationSize != simulationSize)) {
+				tuner.perf.simulationSize = simulationSize;
+			}
+		}
 		#endregion
 
 		#region methods
 		protected void Prepare () {
-			var size = Source.Size();
-			var size_solver = size.LOD(tuner.basics.lod_solver + tuner.basics.lod_image);
-			var size_image = size.LOD(tuner.basics.lod_image);
+			var size = tuner.perf.simulationSize;
+			var size_solver = size.LOD(tuner.perf.lod_solver + tuner.perf.lod_image);
+			var size_image = size.LOD(tuner.perf.lod_image);
 			var prev_solver = fluid0.Size;
 			var prev_image = image0.Size;
 			fluid0.Size = fluid1.Size = size_solver;
@@ -127,17 +134,20 @@ namespace SimpleAndFastFluids.Examples {
 		}
 
 		private void Solve(float dt) {
-			time_residue += dt;
-            time_residue = solver.Solve(fluid0, fluid1, Force, tuner.fluid, time_residue);
-			Solver.Swap(ref fluid0, ref fluid1);
-		}
+			time_residue += dt * tuner.perf.simulationSpeed;
+			while (solver.Solve(fluid0, fluid1, Force, tuner.solver, ref time_residue)) {
+                Solver.Swap(ref fluid0, ref fluid1);
+            }
+        }
 		protected void AdvectImage (float dt) {
 			solver.Advect(image0, image1, fluid0, dt);
             Solver.Swap(ref image0, ref image1);
 		}
 		protected void FallbackToSource () {
-			solver.Lerp(image0, image1, Source, tuner.basics.lerpEmission, tuner.basics.lerpDissipation);
-            Solver.Swap(ref image0, ref image1);
+			if (Source != null) {
+				solver.Lerp(image0, image1, Source, tuner.perf.fallbackToImage, tuner.perf.imageDissipation);
+				Solver.Swap(ref image0, ref image1);
+			}
 		}
 		protected RenderTexture GenFluidTex(int2 size) {
 			var tex = new RenderTexture(size.x, size.y, 0, preset.textureFormat_advect);
@@ -187,16 +197,18 @@ namespace SimpleAndFastFluids.Examples {
 			public class TextureEvent : UnityEvent<Texture> { }
 		}
 		[System.Serializable]
-		public class BasicTuner {
-			[Header("Lerp Material")]
-			public float lerpEmission = 0.1f;
-			public float lerpDissipation = 0.1f;
+		public class PerformanceTuner {
+			[Header("Image")]
+			public float fallbackToImage = 0.1f;
+			public float imageDissipation = 0.1f;
 
-			[Header("Quality")]
+			[Header("Simulation")]
+			public float simulationSpeed = 1f;
+			public int2 simulationSize = new int2(4, 4);
 			[Range(0, 4)]
-			[FormerlySerializedAs("lod")]
-			public int lod_solver = 1;
-			public int lod_image = 1;
+			public int lod_solver = 0;
+            [Range(0, 4)]
+            public int lod_image = 0;
 		}
 		[System.Serializable]
 		public class DebugTuner {
@@ -204,8 +216,8 @@ namespace SimpleAndFastFluids.Examples {
 		}
 		[System.Serializable]
 		public class Tuner {
-			public BasicTuner basics = new BasicTuner();
-			public Solver.Tuner fluid = new Solver.Tuner();
+			public PerformanceTuner perf = new PerformanceTuner();
+			public Solver.Tuner solver = new Solver.Tuner();
 			public DebugTuner debug = new DebugTuner();
 		}
 		#endregion

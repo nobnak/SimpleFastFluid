@@ -531,18 +531,22 @@ MonoBehaviour:
     textureFormat_advect: 11
     textureFormat_source: 0
   tuner:
-    basics:
-      lerpEmission: 0.1
-      lerpDissipation: 0.1
-      lod_solver: 1
-      lod_image: 1
-    fluid:
-      forcePower: 100
+    perf:
+      fallbackToImage: 0.001
+      imageDissipation: 0
+      simulationSpeed: 10
+      simulationSize:
+        x: 4
+        y: 4
+      lod_solver: 0
+      lod_image: 0
+    solver:
+      forcePower: 10
       k: 0.12
       vis: 0.1
       timeStep: 0.01
     debug:
-      outputMode: 0
+      outputMode: 2
   events:
     OnUpdateAdvectedImageTexture:
       m_PersistentCalls:
