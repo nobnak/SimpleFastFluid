@@ -1,8 +1,8 @@
-using UnityEngine;
-using Gist2.Extensions.ComponentExt;
-using UnityEngine.Events;
-using Gist2.Wrappers;
 using Gist2.Extensions.SizeExt;
+using Gist2.Wrappers;
+using Unity.Mathematics;
+using UnityEngine;
+using UnityEngine.Events;
 
 namespace SimpleAndFastFluids.Examples {
 
@@ -13,7 +13,7 @@ namespace SimpleAndFastFluids.Examples {
         public Tuner tuner = new Tuner();
 
         ForceField forceField;
-        Vector3 _mousePos;
+        float3 _mousePos;
         RenderTextureWrapper forceTex;
 
 		#region unity
@@ -53,22 +53,20 @@ namespace SimpleAndFastFluids.Examples {
 
 		#region methods
 		void UpdateForceField() {
-            var mousePos = Input.mousePosition;
-			var dx = UpdateMousePos(mousePos) / Time.deltaTime;
-            var forceVector = Vector2.zero;
-            var uv = Vector2.zero;
+            float3 mousePos_pxc = Input.mousePosition;
+			var v_pxc = UpdateMousePos(mousePos_pxc) / Time.deltaTime;
 
-            if (Input.GetMouseButton (0)) {
-                uv = Camera.main.ScreenToViewportPoint (mousePos);
-                forceVector = Vector2.ClampMagnitude ((Vector2)dx, 1f);
+            if (!Input.GetMouseButton (0)) {
+                v_pxc *= 0f;
             }
 
 			var c = Camera.main;
-			forceTex.Size = c.Size();
+            var size = c.Size();
+			forceTex.Size = size;
 
-            forceField.Render(forceTex, uv, forceVector, tuner.forceRadius);
+            forceField.Render(forceTex, mousePos_pxc.xy, v_pxc.xy, tuner.forceRadius);
         }
-        Vector3 UpdateMousePos (Vector3 mousePos) {
+        float3 UpdateMousePos (float3 mousePos) {
             var dx = mousePos - _mousePos;
             _mousePos = mousePos;
             return dx;

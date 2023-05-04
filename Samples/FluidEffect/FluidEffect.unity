@@ -481,7 +481,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 1
   tuner:
-    forceRadius: 0.05
+    forceRadius: 20
 --- !u!4 &1644907133
 Transform:
   m_ObjectHideFlags: 0
@@ -534,19 +534,19 @@ MonoBehaviour:
     perf:
       fallbackToImage: 0.001
       imageDissipation: 0
-      simulationSpeed: 10
+      simulationSpeed: 1
       simulationSize:
         x: 4
         y: 4
       lod_solver: 0
       lod_image: 0
     solver:
-      forcePower: 10
+      forcePower: 1
       k: 0.12
-      vis: 0.1
-      timeStep: 0.01
+      vis: 100
+      timeStep: 0.001
     debug:
-      outputMode: 2
+      outputMode: 0
   events:
     OnUpdateAdvectedImageTexture:
       m_PersistentCalls:

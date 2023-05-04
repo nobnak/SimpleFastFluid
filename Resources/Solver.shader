@@ -78,13 +78,13 @@
 				float4 dudx = DIFF * (ur - ul);
 				float4 dudy = DIFF * (ut - ub);
 
-				// Mass Conservation (Density)
+				// Mass Conservation (Solve for Density)
 				float2 rGrad = float2(dudx.w, dudy.w);
 				float uDiv = dudx.x + dudy.y;
 				u.w -= _Dt * dot(u.xyw, float3(rGrad, uDiv));
 				u.w = clamp(u.w, 0.5, 3);
 
-				// Momentum Conservation (Velocity)
+				// Momentum Conservation (Solve for Velocity)
 				u.xy = tex2D(_MainTex, i.uv.zw - _Dt * duv * u.xy).xy;
 				float4 fTex = tex2D(_Tex0, i.uv.zw);
 				float2 f = _ForcePower * fTex.xy;
@@ -93,7 +93,7 @@
 				// Fallback
 				float dt_inv = 1 / _Dt;
 				u.xy = clamp (u.xy, -dt_inv, dt_inv);
-				u.xy *= 0.999;
+				u.xy *= 0.99999;
 				u.w = lerp(u.w, 1, 0.001);
 
 				// Boundary

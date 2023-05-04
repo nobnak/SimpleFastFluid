@@ -23,21 +23,20 @@
 				float4 vertex : SV_POSITION;
 			};
 
-			float4 _DirAndCenter;
-			float _InvRadius;
+			float4 _Velocity_pxc;
+			float4 _Radius_pxc;
+			float4 _Dest_TexelSize;
 
 			v2f vert (appdata v) {
-                float2 uvb = v.uv;
-
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.uv = float4(v.uv, uvb);
+				o.uv = float4(v.uv, v.uv * _Dest_TexelSize.zw);
 				return o;
 			}
 			
 			float4 frag (v2f i) : SV_Target {
-				float2 dx =  (i.uv.xy - _DirAndCenter.zw) * _InvRadius;
-				return float4(_DirAndCenter.xy * saturate(1.0 - dot(dx, dx)), 0, 0);
+				float2 dpx =  (i.uv.zw - _Velocity_pxc.zw) * _Radius_pxc.x;
+				return float4(_Velocity_pxc.xy * saturate(1.0 - dot(dpx, dpx)), 0, 0);
 			}
 			ENDCG
 		}
