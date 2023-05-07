@@ -542,9 +542,9 @@ MonoBehaviour:
       lod_image: 0
     solver:
       force: 1
-      k: 0.12
+      k: 0.2
       vis: 1
-      timeStep: 0.01
+      timeStep: 0.001
     debug:
       outputMode: 0
   events:

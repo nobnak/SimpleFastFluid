@@ -8,6 +8,8 @@
 		CGINCLUDE
 			#define DX 1.0
 			#define DIFF (1.0 / (2.0 * DX))
+			#define DAMPING 0.9999
+			#define DENSITY0 1.0
 			#pragma target 5.0
 			
 			#include "UnityCG.cginc"
@@ -48,7 +50,7 @@
 			#pragma fragment frag
 
 			float4 frag (v2f i) : SV_Target {
-				return float4(0, 0, 0, 1);
+				return float4(0, 0, 0, DENSITY0);
 			}
 			ENDCG
 		}
@@ -93,13 +95,13 @@
 				// Fallback
 				float dt_inv = 1 / _Dt;
 				u.xy = clamp (u.xy, -dt_inv, dt_inv);
-				u.xy *= 0.99999;
-				u.w = lerp(u.w, 1, 0.001);
+				u.xy *= DAMPING;
+				u.w = lerp(u.w, DENSITY0, saturate(1 - DAMPING));
 
 				// Boundary
 				float2 px = i.uv.xy * _MainTex_TexelSize.zw;
 				if (any(px < 1) || any((_MainTex_TexelSize.zw - px) < 1))
-					u = float4(0, 0, 0, 1);
+					u = float4(0, 0, 0, DENSITY0);
 
 				u.z = saturate(dot(1, max(0, -u.xy)));
 				return u;
