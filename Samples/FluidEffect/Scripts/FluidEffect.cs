@@ -134,8 +134,15 @@ namespace SimpleAndFastFluids.Examples {
 		}
 
 		private void Solve(float dt) {
+			var time_step = tuner.solver.timeStep;
 			time_residue += dt * tuner.perf.simulationSpeed;
-			while (solver.Solve(fluid0, fluid1, Force, tuner.solver, ref time_residue)) {
+			while (time_residue >= time_step) {
+                time_residue -= time_step;
+                solver.Solve(fluid0, fluid1, Force, 
+					viscosity: tuner.solver.vis,
+					k: tuner.solver.k,
+					force: tuner.solver.force,
+                    dt: time_step);
                 Solver.Swap(ref fluid0, ref fluid1);
             }
         }
@@ -213,11 +220,21 @@ namespace SimpleAndFastFluids.Examples {
 		[System.Serializable]
 		public class DebugTuner {
 			public OutputModeEnum outputMode;
-		}
-		[System.Serializable]
+        }
+
+        #region declarations
+        [System.Serializable]
+        public class SolverTuner {
+            public float force = 1f;
+            public float k = 0.12f;
+            public float vis = 0.1f;
+            public float timeStep = 0.1f;
+        }
+        #endregion
+        [System.Serializable]
 		public class Tuner {
 			public PerformanceTuner perf = new PerformanceTuner();
-			public Solver.Tuner solver = new Solver.Tuner();
+			public SolverTuner solver = new SolverTuner();
 			public DebugTuner debug = new DebugTuner();
 		}
 		#endregion

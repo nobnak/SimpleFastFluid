@@ -541,10 +541,10 @@ MonoBehaviour:
       lod_solver: 0
       lod_image: 0
     solver:
-      forcePower: 1
+      force: 1
       k: 0.12
-      vis: 100
-      timeStep: 0.001
+      vis: 1
+      timeStep: 0.01
     debug:
       outputMode: 0
   events:

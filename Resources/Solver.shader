@@ -8,7 +8,6 @@
 		CGINCLUDE
 			#define DX 1.0
 			#define DIFF (1.0 / (2.0 * DX))
-			#define DDIFF (1.0 / (DX * DX))
 			#pragma target 5.0
 			
 			#include "UnityCG.cginc"
@@ -61,9 +60,10 @@
 			#pragma fragment frag
 
 			float _Dt;
-			float _KVis;
+			float _KineticVis;
+			float _Density0;
 			float _S;
-			float _ForcePower;
+			float _Force;
 
 			float4 frag (v2f i) : SV_Target {
 				float2 duv = _MainTex_TexelSize.xy;
@@ -73,22 +73,22 @@
 				float4 ub = tex2D(_MainTex, i.uv.zw - float2(0, duv.y));
 				float4 ut = tex2D(_MainTex, i.uv.zw + float2(0, duv.y));
 
-				float2 uLaplacian = DDIFF * (ul.xy + ur.xy + ub.xy + ut.xy - 4.0 * u.xy);
-
 				float4 dudx = DIFF * (ur - ul);
 				float4 dudy = DIFF * (ut - ub);
 
-				// Mass Conservation (Solve for Density)
-				float2 rGrad = float2(dudx.w, dudy.w);
-				float uDiv = dudx.x + dudy.y;
-				u.w -= _Dt * dot(u.xyw, float3(rGrad, uDiv));
+				// 1. Mass equation (Solve for Density)
+				float2 rho_grad = float2(dudx.w, dudy.w);
+				float u_div = dudx.x + dudy.y;
+				u.w -= _Dt * dot(u.xyw, float3(rho_grad, u_div));
 				u.w = clamp(u.w, 0.5, 3);
 
-				// Momentum Conservation (Solve for Velocity)
+				// 2. Momentum equation (Solve for Velocity)
+				// 2a. Semi-Lagrange for Transport equation
 				u.xy = tex2D(_MainTex, i.uv.zw - _Dt * duv * u.xy).xy;
-				float4 fTex = tex2D(_Tex0, i.uv.zw);
-				float2 f = _ForcePower * fTex.xy;
-				u.xy += _Dt * (-_S * rGrad + f + _KVis * uLaplacian);
+				// 2b. Remains of Mementum equation
+				float2 f = _Force * tex2D(_Tex0, i.uv.zw).xy;
+				float2 u_lap = ul.xy + ur.xy + ub.xy + ut.xy - 4.0 * u.xy;
+				u.xy += _Dt * (-_S * rho_grad + f + _KineticVis * u_lap);
 
 				// Fallback
 				float dt_inv = 1 / _Dt;
