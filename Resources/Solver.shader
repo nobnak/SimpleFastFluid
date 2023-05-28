@@ -134,7 +134,8 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-
+			
+			float _Dt;
             float _Emission;
             float _Dissipation;
 			
@@ -142,8 +143,8 @@
 				float4 csrc = tex2D(_MainTex, i.uv.xy);
 				float4 cemit = tex2D(_Tex0, i.uv.zw);
 
-                csrc = float4(csrc.rgb, (1.0 - _Dissipation * unity_DeltaTime.x) * csrc.a);
-                return lerp(csrc, cemit, cemit.a * _Emission);
+                csrc = float4(csrc.rgb, (1.0 - _Dissipation * _Dt) * csrc.a);
+                return lerp(csrc, float4(cemit.rgb, 1) * cemit.a, _Dt * _Emission);
 			}
 			ENDCG
 		}

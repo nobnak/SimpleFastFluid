@@ -63,11 +63,15 @@ namespace SimpleAndFastFluids {
 			mat.SetFloat(P_Dt, dt);
 			Graphics.Blit(main0, main1, mat, (int)Pass.Advect);
 		}
-		public void Lerp(Texture src, RenderTexture dst, Texture emit_tex, 
-			float emission = 0f, float dissipation = 0f) {
-			mat.SetTexture(P_Tex0, emit_tex);
-			mat.SetFloat(P_Dissipation, dissipation);
-			mat.SetFloat(P_Emission, emission);
+		public void Lerp(Texture src, RenderTexture dst, Texture fallback_tex, 
+			float dt, float fallback = 0f, float dissipation = 0f) {
+
+			mat.SetTexture(P_Tex0, fallback_tex);
+
+            mat.SetFloat(P_Dt, dt);
+            mat.SetFloat(P_Dissipation, dissipation);
+			mat.SetFloat(P_Emission, fallback);
+
 			Graphics.Blit(src, dst, mat, (int)Pass.Lerp);
 		}
 	}

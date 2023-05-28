@@ -4,9 +4,9 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace SimpleAndFastFluids.Examples {
+namespace SimpleAndFastFluids {
 
-    public class MouseForceTex : MonoBehaviour {
+    public class MouseForceTex : MonoBehaviour, IEffect {
 
         public Links links = new Links();
 		public Events events = new Events();
@@ -28,17 +28,9 @@ namespace SimpleAndFastFluids.Examples {
 				tex.filterMode = FilterMode.Bilinear;
 				return tex;
 			});
-			forceTex.Changed += v => {
-				events.OnCreate?.Invoke(v);
-                if (links.fluidEffect != null)
-                    links.fluidEffect.Force = v;
-			};
 
 			UpdateMousePos(Input.mousePosition);
 		}
-    	void Update () {
-            UpdateForceField();
-        }
 		private void OnDisable() {
             if (forceField != null) {
                 forceField.Dispose();
@@ -49,23 +41,25 @@ namespace SimpleAndFastFluids.Examples {
 				forceTex = null;
 			}          
         }
-		#endregion
+        #endregion
 
-		#region methods
-		void UpdateForceField() {
+        #region IEffect
+        void IEffect.Next(float dt) {
             float3 mousePos_pxc = Input.mousePosition;
-			var v_pxc = UpdateMousePos(mousePos_pxc) / Time.deltaTime;
+			var v_pxc = UpdateMousePos(mousePos_pxc) / dt;
 
             if (!Input.GetMouseButton (0)) {
                 v_pxc *= 0f;
             }
 
-			var c = Camera.main;
-            var size = c.Size();
-			forceTex.Size = size;
-
             forceField.Render(forceTex, mousePos_pxc.xy, v_pxc.xy, tuner.forceRadius);
         }
+        void IEffect.Prepare(int2 size) {
+            forceTex.Size = size;
+        }
+        #endregion
+
+        #region methods
         float3 UpdateMousePos (float3 mousePos) {
             var dx = mousePos - _mousePos;
             _mousePos = mousePos;
