@@ -50,7 +50,6 @@ namespace SimpleAndFastFluids {
 
             changed.Reset();
             changed.OnValidate += () => {
-                UpdateMousePos_Pxc(GetMousePos_Pxc());
             };
 		}
 		private void OnDisable() {
@@ -70,15 +69,16 @@ namespace SimpleAndFastFluids {
 
         #region IEffect
         void IEffect.Next(float dt) {
-            float2 center_pxc = default;
+            float2 velocity_pxc = default;
             if (Input.GetMouseButton(0)) {
                 if (TryGetMousePos_Pxc(out var mousePos_pxc)) {
-                    var nextCenter_pxc = UpdateMousePos_Pxc(mousePos_pxc) / dt;
-                    if (!Input.GetMouseButtonDown(0))
-                        center_pxc = nextCenter_pxc;
+                    var nextVelocity_pxc = UpdateMousePos_Pxc(mousePos_pxc) / dt;
+                    if (!Input.GetMouseButtonDown(0)) {
+                        velocity_pxc = nextVelocity_pxc;
+                    }
                 }
             }
-            forceField.Render(forceTex, mousePos_pxc, center_pxc, tuner.forceRadius);
+            forceField.Render(forceTex, mousePos_pxc, velocity_pxc, tuner.forceRadius);
         }
         void IEffect.Prepare(int2 size) {
             changed.Validate();
@@ -97,10 +97,17 @@ namespace SimpleAndFastFluids {
                 }
                 case CollisionMode.Collider: {
                     var ray = Camera.main.ScreenPointToRay(screenPos_pxc);
-                    if (math.all(panelSize_pxc >= 4) 
-                        && links.touchpanel != null 
-                        && links.touchpanel.Raycast(ray, out var hit, float.MaxValue)) {
-                        nextMousePos_pxc = (float2)hit.textureCoord * panelSize_pxc;
+                    if (math.any(panelSize_pxc < 4)) {
+                        Debug.LogWarning($"Display texture too small: size={panelSize_pxc}");
+                        break;
+                    }
+                    if (links.touchpanel == null) {
+                        Debug.LogWarning($"Touch panel is not set");
+                        break;
+                    }
+                    if (links.touchpanel.Raycast(ray, out var hit, float.MaxValue)) {
+                        var uv = (float2)hit.textureCoord;
+                        nextMousePos_pxc = uv * panelSize_pxc;
                         return true;
                     }
                     break;

@@ -565,6 +565,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   links:
     fluidEffect: {fileID: 1873003407}
+    touchpanel: {fileID: 2070787286}
   events:
     OnCreate:
       m_PersistentCalls:
@@ -582,6 +583,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 1
   tuner:
+    collisionMode: 1
     forceRadius: 20
 --- !u!4 &1644907133
 Transform:
@@ -699,7 +701,7 @@ Transform:
   m_GameObject: {fileID: 2070787283}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5, y: 5, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
