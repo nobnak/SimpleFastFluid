@@ -2,6 +2,7 @@ using Gist2.Deferred;
 using Gist2.Extensions.ComponentExt;
 using Gist2.Extensions.SizeExt;
 using Gist2.Wrappers;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
@@ -100,17 +101,19 @@ namespace SimpleAndFastFluids {
                         Debug.LogWarning($"Display texture too small: size={panelSize_pxc}");
                         break;
                     }
-                    if (links.touchpanel == null) {
+                    if (links.touchpanels == null) {
                         Debug.LogWarning($"Touch panel is not set");
                         break;
                     }
 
                     var ray = Camera.main.ScreenPointToRay(screenPos_pxc);
-                    if (links.touchpanel.Raycast(ray, out var hit, float.MaxValue)) {
-                        var uv = (float2)hit.textureCoord;
-                        nextMousePos_pxc = uv * panelSize_pxc;
-                        Debug.Log($"Touch pos: uv={uv} px={nextMousePos_pxc}");
-                        return true;
+                    foreach (var tp in links.touchpanels) {
+                        if (tp.Raycast(ray, out var hit, float.MaxValue)) {
+                            var uv = (float2)hit.textureCoord;
+                            nextMousePos_pxc = uv * panelSize_pxc;
+                            Debug.Log($"Touch pos: uv={uv} px={nextMousePos_pxc}");
+                            return true;
+                        }
                     }
                     break;
                 }
@@ -134,7 +137,7 @@ namespace SimpleAndFastFluids {
         [System.Serializable]
         public class Links {
             public FluidEffect fluidEffect;
-            public Collider touchpanel;
+            public List<Collider> touchpanels = new List<Collider>();
         }
         [System.Serializable]
         public class Events {
