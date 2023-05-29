@@ -23,11 +23,13 @@ public class FluidController : MonoBehaviour {
         events.Output_Image?.Invoke(preset.sourceImage);
 
         foreach (IEffect eff in preset.effects)
-            eff.Prepare(size);
+            if (eff != null && eff.isActiveAndEnabled)
+                eff.Prepare(size);
 
         var dt = Time.deltaTime;
         foreach (IEffect eff in preset.effects)
-            eff.Next(dt);
+            if (eff != null && eff.isActiveAndEnabled)
+                eff.Next(dt);
     }
     #endregion
 

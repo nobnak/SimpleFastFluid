@@ -96,7 +96,6 @@ namespace SimpleAndFastFluids {
                     return true;
                 }
                 case CollisionMode.Collider: {
-                    var ray = Camera.main.ScreenPointToRay(screenPos_pxc);
                     if (math.any(panelSize_pxc < 4)) {
                         Debug.LogWarning($"Display texture too small: size={panelSize_pxc}");
                         break;
@@ -105,9 +104,12 @@ namespace SimpleAndFastFluids {
                         Debug.LogWarning($"Touch panel is not set");
                         break;
                     }
+
+                    var ray = Camera.main.ScreenPointToRay(screenPos_pxc);
                     if (links.touchpanel.Raycast(ray, out var hit, float.MaxValue)) {
                         var uv = (float2)hit.textureCoord;
                         nextMousePos_pxc = uv * panelSize_pxc;
+                        Debug.Log($"Touch pos: uv={uv} px={nextMousePos_pxc}");
                         return true;
                     }
                     break;

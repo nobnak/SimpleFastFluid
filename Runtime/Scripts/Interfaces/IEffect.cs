@@ -6,5 +6,7 @@ namespace SimpleAndFastFluids {
 
         void Next(float dt);
         void Prepare(int2 size);
+
+        bool isActiveAndEnabled { get; }
     }
 }
