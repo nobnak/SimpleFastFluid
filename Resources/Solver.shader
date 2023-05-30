@@ -1,6 +1,8 @@
-﻿Shader "SimpleAndFastFluids/Solver" {
+Shader "SimpleAndFastFluids/Solver" {
 	Properties {
 		[MainTexture] _MainTex ("Texture", 2D) = "black" {}
+		_Tex0 ("Texture", 2D) = "black" {}
+		_Tex1 ("Texture", 2D) = "black" {}
 	}
 	SubShader {
 		Cull Off ZWrite Off ZTest Always
@@ -11,6 +13,13 @@
 			#define DAMPING 0.9999
 			#define DENSITY0 1.0
 			#pragma target 5.0
+
+			static const float2 DIR[4] = {
+				float2(-1, 0),
+				float2(1, 0),
+				float2(0, -1),
+				float2(0, 1)
+			};
 			
 			#include "UnityCG.cginc"
 
@@ -30,6 +39,9 @@
 			
 			sampler2D _Tex0;
 			float4 _Tex0_TexelSize;
+			
+			sampler2D _Tex1;
+			float4 _Tex1_TexelSize;
 
 			v2f vert(appdata v) {
                 float2 uvb = v.uv;
@@ -67,13 +79,13 @@
 			float _S;
 			float _Force;
 
-			float4 frag (v2f i) : SV_Target {
+			float4 frag (v2f IN) : SV_Target {
 				float2 duv = _MainTex_TexelSize.xy;
-				float4 u = tex2D(_MainTex, i.uv.zw);
-				float4 ul = tex2D(_MainTex, i.uv.zw - float2(duv.x, 0));
-				float4 ur = tex2D(_MainTex, i.uv.zw + float2(duv.x, 0));
-				float4 ub = tex2D(_MainTex, i.uv.zw - float2(0, duv.y));
-				float4 ut = tex2D(_MainTex, i.uv.zw + float2(0, duv.y));
+				float4 u = tex2D(_MainTex, IN.uv.zw);
+				float4 ul = tex2D(_MainTex, IN.uv.zw - float2(duv.x, 0));
+				float4 ur = tex2D(_MainTex, IN.uv.zw + float2(duv.x, 0));
+				float4 ub = tex2D(_MainTex, IN.uv.zw - float2(0, duv.y));
+				float4 ut = tex2D(_MainTex, IN.uv.zw + float2(0, duv.y));
 
 				float4 dudx = DIFF * (ur - ul);
 				float4 dudy = DIFF * (ut - ub);
@@ -86,9 +98,9 @@
 
 				// 2. Momentum equation (Solve for Velocity)
 				// 2a. Semi-Lagrange for Transport equation
-				u.xy = tex2D(_MainTex, i.uv.zw - _Dt * duv * u.xy).xy;
+				u.xy = tex2D(_MainTex, IN.uv.zw - _Dt * duv * u.xy).xy;
 				// 2b. Remains of Mementum equation
-				float2 f = _Force * tex2D(_Tex0, i.uv.zw).xy;
+				float2 f = _Force * tex2D(_Tex0, IN.uv.zw).xy;
 				float2 u_lap = ul.xy + ur.xy + ub.xy + ut.xy - 4.0 * u.xy;
 				u.xy += _Dt * (-_S * rho_grad + f + _KineticVis * u_lap);
 
@@ -99,9 +111,12 @@
 				u.w = lerp(u.w, DENSITY0, saturate(1 - DAMPING));
 
 				// Boundary
-				float2 px = i.uv.xy * _MainTex_TexelSize.zw;
-				if (any(px < 1) || any((_MainTex_TexelSize.zw - px) < 1))
-					u = float4(0, 0, 0, DENSITY0);
+				for (int i = 0; i < 4; i++){
+					float2 b_uv = IN.uv.xy + DIR[i] * _MainTex_TexelSize.xy;
+					float4 b_c = tex2D(_Tex1, b_uv);
+					if (b_c.x > 0.5 || any(b_uv < 0) || any(b_uv > 1))
+						u.xy *= saturate(1 - abs(DIR[i]));
+				}
 
 				u.z = saturate(dot(1, max(0, -u.xy)));
 				return u;
