@@ -15,6 +15,7 @@ namespace SimpleAndFastFluids {
 		public const string PATH = "Solver";
 
         public static readonly int P_Tex0 = Shader.PropertyToID("_Tex0");
+        public static readonly int P_Tex1 = Shader.PropertyToID("_Tex1");
 
         public static readonly int P_Dt = Shader.PropertyToID("_Dt");
         public static readonly int P_KineticVis = Shader.PropertyToID("_KineticVis");
@@ -45,12 +46,14 @@ namespace SimpleAndFastFluids {
 		public void Clear(RenderTexture fluid0) {
 			Graphics.Blit(null, fluid0, mat, (int)Pass.Init);
 		}
-        public void Solve(Texture fluid0_tex, RenderTexture fluid1_tex, Texture force_tex, 
-			float dt, float viscosity = 0f, float k = 0f, float force = 0f, float density0 = 1f) {
+        public void Solve(Texture fluid0_tex, RenderTexture fluid1_tex, Texture force_tex, float dt, 
+			float viscosity = 0f, float k = 0f, float force = 0f, Texture boundary_tex = null, float density0 = 1f) {
 			var kinetic_vis = viscosity / density0;
 			var s = k / (dt * density0);
 
 			mat.SetTexture(P_Tex0, force_tex);
+			mat.SetTexture(P_Tex1, boundary_tex);
+
 			mat.SetFloat(P_Force, force);
 			mat.SetFloat(P_Dt, dt);
 			mat.SetFloat(P_KineticVis, kinetic_vis);

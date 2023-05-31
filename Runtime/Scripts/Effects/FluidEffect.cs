@@ -18,6 +18,8 @@ namespace SimpleAndFastFluids {
 
 		#region properties
 		public Texture Input_Force { get; set; }
+        public Texture Input_Boundary { get; set; }
+
 		public Texture Output_Fluid { get; protected set; }
 		#endregion
 
@@ -96,11 +98,11 @@ namespace SimpleAndFastFluids {
 			time_residue += dt * tuner.eff.simulationSpeed;
 			while (time_residue >= time_step) {
                 time_residue -= time_step;
-                solver.Solve(fluid0, fluid1, Input_Force, 
-					viscosity: tuner.solver.vis,
+                solver.Solve(fluid0, fluid1, Input_Force, time_step,
+                    viscosity: tuner.solver.vis,
 					k: tuner.solver.k,
 					force: tuner.solver.force,
-                    dt: time_step);
+                    boundary_tex: Input_Boundary);
                 Solver.Swap(ref fluid0, ref fluid1);
             }
         }

@@ -1,6 +1,7 @@
 using Gist2.Extensions.SizeExt;
 using LLGraphicsUnity;
 using SimpleAndFastFluids;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,10 +18,10 @@ public class FluidController : MonoBehaviour {
     private void OnDisable() {
     }
     private void Update() {
-        var size = preset.sourceImage.Size();
+        var size = preset.texturesize.GetSize();
         if (math.any(size < 4)) return;
 
-        events.Output_Image?.Invoke(preset.sourceImage);
+        preset.textureSetters.ForEach(v => v?.Set());
 
         foreach (IEffect eff in preset.effects)
             if (eff != null && eff.isActiveAndEnabled)
@@ -35,13 +36,27 @@ public class FluidController : MonoBehaviour {
 
     #region declarations
     [System.Serializable]
+    public class TextureSetter {
+        public Texture image;
+        public UnityEvent<Texture> target = new UnityEvent<Texture>();
+
+        public void Set() => target?.Invoke(image);
+    }
+    [System.Serializable]
+    public class TextureSize {
+        public int2 default_size = new int2(4, 4);
+        public Texture texture;
+
+        public int2 GetSize() => texture != null ? texture.Size() : default_size;
+    }
+    [System.Serializable]
     public class Events {
-        public UnityEvent<Texture> Output_Image = new UnityEvent<Texture>();
     }
     [System.Serializable]
     public class Preset {
-        public MonoBehaviour[] effects = new MonoBehaviour[0];
-        public Texture sourceImage;
+        public List<MonoBehaviour> effects = new List<MonoBehaviour>();
+        public List<TextureSetter> textureSetters = new List<TextureSetter>();
+        public TextureSize texturesize = new TextureSize();
     }
     [System.Serializable]
     public class Tuner {

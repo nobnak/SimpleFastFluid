@@ -403,6 +403,56 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 1
+--- !u!1 &219249600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 219249601}
+  - component: {fileID: 219249602}
+  m_Layer: 5
+  m_Name: Texture Selector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &219249601
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219249600}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1385101976}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &219249602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219249600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d9ed0e13df4d284d98f1c96981c92c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  events:
+    Output_Texture:
+      m_PersistentCalls:
+        m_Calls: []
+  tuner:
+    output: 0
 --- !u!1 &1234910359
 GameObject:
   m_ObjectHideFlags: 0
@@ -647,23 +697,44 @@ MonoBehaviour:
     - {fileID: 1644907132}
     - {fileID: 1873003407}
     - {fileID: 122405368}
-    sourceImage: {fileID: 2800000, guid: a48c83bb48ac5fc49bb4a1a386328e0c, type: 3}
-  events:
-    Output_Image:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 122405368}
-          m_TargetAssemblyTypeName: SimpleAndFastFluids.ImageAdvectionEffect, SimpleFastFluid
-          m_MethodName: set_Input_Image
-          m_Mode: 0
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 1
+    textureSetters:
+    - image: {fileID: 2800000, guid: cf81b68f859d68c42a5c4913fcd4a5ef, type: 3}
+      target:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 1873003407}
+            m_TargetAssemblyTypeName: SimpleAndFastFluids.FluidEffect, SimpleFastFluid
+            m_MethodName: set_Input_Boundary
+            m_Mode: 0
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 1
+    - image: {fileID: 2800000, guid: a48c83bb48ac5fc49bb4a1a386328e0c, type: 3}
+      target:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 122405368}
+            m_TargetAssemblyTypeName: SimpleAndFastFluids.ImageAdvectionEffect, SimpleFastFluid
+            m_MethodName: set_Input_Image
+            m_Mode: 0
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 1
+    texturesize:
+      default_size:
+        x: 4
+        y: 4
+      texture: {fileID: 2800000, guid: a48c83bb48ac5fc49bb4a1a386328e0c, type: 3}
 --- !u!4 &1385101976
 Transform:
   m_ObjectHideFlags: 0
@@ -679,6 +750,7 @@ Transform:
   - {fileID: 1644907133}
   - {fileID: 1873003408}
   - {fileID: 122405367}
+  - {fileID: 219249601}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -871,7 +943,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 87a04e7c702b8824991deab3f328e603, type: 2}
-  default_textureName: _MainTex
+  default_textureName: _BoundaryMap
 --- !u!64 &2070787286
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -951,7 +1023,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2070787283}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ca4605dc386f484dbdaf75a4843402b, type: 3}
   m_Name: 

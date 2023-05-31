@@ -111,7 +111,7 @@ namespace SimpleAndFastFluids {
                         if (tp.Raycast(ray, out var hit, float.MaxValue)) {
                             var uv = (float2)hit.textureCoord;
                             nextMousePos_pxc = uv * panelSize_pxc;
-                            Debug.Log($"Touch pos: uv={uv} px={nextMousePos_pxc}");
+                            //Debug.Log($"Touch pos: uv={uv} px={nextMousePos_pxc}");
                             return true;
                         }
                     }
